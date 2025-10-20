@@ -1,0 +1,5 @@
+{
+  "name": "Video Caption Translator",
+  "description": "An application to translate a provided video transcript and overlay it as styled captions on the video player. Users can upload a video, provide its transcript, choose a target language, and customize the caption's appearance.",
+  "requestFramePermissions": []
+}
