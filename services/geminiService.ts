@@ -23,45 +23,31 @@ export async function generateAndTranslateCaptions(
 Your task is to:
 1. Transcribe the provided audio accurately.
 2. Segment the transcription into captions. Each caption should not exceed ${maxWordsPerCaption} words.
-3. For each caption, provide word-level timestamps. This is critical. Each word in a caption must have its own "start" and "end" time.
+3. For each caption, provide accurate timestamps (start and end time in seconds).
 4. Identify the source language of the audio.
-5. Translate the captions (including word-level timestamps) into ${targetLanguage}.
+5. Translate each caption into ${targetLanguage}, maintaining the same timing.
 6. Provide the output in a single JSON object.
 
 The JSON object must have the following structure:
 {
   "sourceLanguage": "The detected source language name (e.g., 'English')",
-  "originalCaptions": [ { "start": number, "end": number, "words": [ { "text": "string", "start": number, "end": number } ] } ],
-  "translatedCaptions": [ { "start": number, "end": number, "words": [ { "text": "string", "start": number, "end": number } ] } ]
+  "originalCaptions": [ { "text": "string", "start": number, "end": number } ],
+  "translatedCaptions": [ { "text": "string", "start": number, "end": number } ]
 }
 
-- 'start' and 'end' times for captions and words must be in seconds.
-- The 'originalCaptions' and 'translatedCaptions' arrays must have the same length.
-- The 'start' and 'end' of a caption must encompass the start of its first word and the end of its last word.
+- 'start' and 'end' times must be in seconds and accurately reflect when the speech occurs.
+- The 'originalCaptions' and 'translatedCaptions' arrays must have the same length and corresponding timing.
+- Each caption's text should be the complete phrase/sentence, not individual words.
 `;
 
-  const wordSchema = {
-    type: Type.OBJECT,
-    properties: {
-      text: { type: Type.STRING, description: 'A single word of the caption.' },
-      start: { type: Type.NUMBER, description: 'Start time of the word in seconds.' },
-      end: { type: Type.NUMBER, description: 'End time of the word in seconds.' },
-    },
-    required: ['text', 'start', 'end'],
-  };
-  
   const captionSchema = {
     type: Type.OBJECT,
     properties: {
-      start: { type: Type.NUMBER, description: 'Start time of the caption line in seconds' },
-      end: { type: Type.NUMBER, description: 'End time of the caption line in seconds' },
-      words: { 
-        type: Type.ARRAY, 
-        description: 'An array of words with their individual timestamps.',
-        items: wordSchema 
-      },
+      text: { type: Type.STRING, description: 'The complete caption text' },
+      start: { type: Type.NUMBER, description: 'Start time of the caption in seconds' },
+      end: { type: Type.NUMBER, description: 'End time of the caption in seconds' },
     },
-    required: ['start', 'end', 'words'],
+    required: ['text', 'start', 'end'],
   };
 
   const responseSchema = {
@@ -163,40 +149,68 @@ The JSON object must have the following structure:
         config: {
             responseMimeType: 'application/json',
             responseSchema: responseSchema,
+            thinkingConfig: {},
         },
     });
     let result;
-    try {
-      result = await doRequest();
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : String(e);
-      const usedInline = !!(audioPart as any).inlineData;
-      console.warn('[geminiService] Request failed.', { usedInline, msg });
-      // Retry once with Files API if inline failed due to network sending request error
-      if (usedInline && /Load failed sending request/i.test(msg)) {
-        console.log('[geminiService] Retrying via Files API fallback...');
-        const audioFile = new File([audioBlob], `${videoFile.name}.wav`, { type: audioMime });
-        const uploaded = await ai.files.upload({ file: audioFile, config: { displayName: audioFile.name, mimeType: audioMime } });
-        const name = uploaded?.name as string;
-        // wait ACTIVE
-        let waited = 0;
-        const pollIntervalMs = 1000;
-        const maxWaitMs = 60000;
-        while (true) {
-          const info = await ai.files.get({ name });
-          const state = (info as any)?.state;
-          if (state === 'ACTIVE') break;
-          if (state === 'FAILED') throw new Error('Uploaded audio processing failed');
-          if (waited >= maxWaitMs) throw new Error('Timed out waiting for uploaded audio to become ACTIVE');
-          await new Promise(r => setTimeout(r, pollIntervalMs));
-          waited += pollIntervalMs;
+    const maxRetries = 3;
+    let lastError;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        if (attempt > 0) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000); // exponential backoff: 1s, 2s, 4s
+          console.log(`[geminiService] Retry attempt ${attempt}/${maxRetries} after ${delay}ms...`);
+          await new Promise(r => setTimeout(r, delay));
         }
-        audioPart = { fileData: { fileUri: uploaded?.uri, mimeType: audioMime } };
-        console.log('[geminiService] Fallback request to Gemini API with fileData');
         result = await doRequest();
-      } else {
-        throw e;
+        break; // Success, exit retry loop
+      } catch (e) {
+        lastError = e;
+        const msg = e instanceof Error ? e.message : String(e);
+        const usedInline = !!(audioPart as any).inlineData;
+        console.warn('[geminiService] Request failed.', { attempt, usedInline, msg });
+
+        // Check if it's a 503 overload error - retry
+        const is503 = /503|overloaded|UNAVAILABLE/i.test(msg);
+        if (is503 && attempt < maxRetries) {
+          console.log('[geminiService] API overloaded, will retry...');
+          continue;
+        }
+
+        // Retry once with Files API if inline failed due to network sending request error
+        if (usedInline && /Load failed sending request/i.test(msg) && attempt === 0) {
+          console.log('[geminiService] Retrying via Files API fallback...');
+          const audioFile = new File([audioBlob], `${videoFile.name}.wav`, { type: audioMime });
+          const uploaded = await ai.files.upload({ file: audioFile, config: { displayName: audioFile.name, mimeType: audioMime } });
+          const name = uploaded?.name as string;
+          // wait ACTIVE
+          let waited = 0;
+          const pollIntervalMs = 1000;
+          const maxWaitMs = 60000;
+          while (true) {
+            const info = await ai.files.get({ name });
+            const state = (info as any)?.state;
+            if (state === 'ACTIVE') break;
+            if (state === 'FAILED') throw new Error('Uploaded audio processing failed');
+            if (waited >= maxWaitMs) throw new Error('Timed out waiting for uploaded audio to become ACTIVE');
+            await new Promise(r => setTimeout(r, pollIntervalMs));
+            waited += pollIntervalMs;
+          }
+          audioPart = { fileData: { fileUri: uploaded?.uri, mimeType: audioMime } };
+          console.log('[geminiService] Fallback request to Gemini API with fileData');
+          continue; // Retry with Files API
+        }
+
+        // If this is the last attempt or not a retryable error, throw
+        if (attempt === maxRetries || !is503) {
+          throw e;
+        }
       }
+    }
+
+    if (!result) {
+      throw lastError || new Error('Request failed after retries');
     }
     const tDone = performance.now();
     console.log('[geminiService] ✓ API request successful!', {

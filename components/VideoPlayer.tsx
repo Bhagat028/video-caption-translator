@@ -149,23 +149,10 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, captions, ca
             borderRadius: '8px',
             whiteSpace: 'pre-wrap',
             maxWidth: '90%',
+            textShadow: captionStyle.outlineWidth > 0 ? textShadow : 'none',
           }}
         >
-          {activeCaption.words.map((word, index) => {
-            const isWordActive = currentTime >= word.start && currentTime <= word.end;
-            return (
-              <span
-                key={index}
-                style={{
-                  color: isWordActive ? captionStyle.activeColor : captionStyle.primaryColor,
-                  textShadow: captionStyle.outlineWidth > 0 ? textShadow : 'none',
-                  transition: 'color 0.1s ease-in-out',
-                }}
-              >
-                {word.text}{' '}
-              </span>
-            );
-          })}
+          {activeCaption.text}
         </div>
       )}
     </div>

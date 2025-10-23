@@ -1,13 +1,7 @@
-export interface Word {
+export interface Caption {
   text: string;
   start: number;
   end: number;
-}
-
-export interface Caption {
-  start: number;
-  end: number;
-  words: Word[];
 }
 
 export interface TranslationResponse {
