@@ -9,6 +9,7 @@ import { StylingControls } from './components/StylingControls';
 import { VideoPlayer } from './components/VideoPlayer';
 import { Loader } from './components/Loader';
 import { LanguageToggle } from './components/LanguageToggle';
+import { DownloadButton } from './components/DownloadButton';
 import { generateAndTranslateCaptions } from './services/geminiService';
 import { Caption, CaptionStyle, CaptionPreset, TranslationResponse } from './types';
 import { DEFAULT_STYLE, LANGUAGES, ASPECT_RATIOS } from './constants';
@@ -140,6 +141,17 @@ function App() {
               )}
             </button>
             {error && <p className="text-red-400 text-sm mt-2 text-center">{error}</p>}
+
+            {/* Download Button - Only show when captions are generated */}
+            {translationResponse && videoFile && (
+              <DownloadButton
+                videoFile={videoFile}
+                captions={activeCaptions}
+                captionStyle={captionStyle}
+                aspectRatio={aspectRatio}
+                disabled={isLoading}
+              />
+            )}
 
             <div className="bg-slate-900 p-6 rounded-lg shadow-lg space-y-6">
               <PresetSelector activePreset={activePreset} onPresetSelect={handlePresetSelect} />
