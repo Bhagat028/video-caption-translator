@@ -13,7 +13,12 @@ export const LANGUAGES = [
   { code: 'zh', name: 'Chinese' },
 ];
 
-export const ASPECT_RATIOS = ['16:9', '9:16', '1:1', '4:5'];
+export const ASPECT_RATIOS = [
+  { ratio: '16:9', name: 'YouTube / Landscape', description: 'Standard video, Facebook, Twitter' },
+  { ratio: '9:16', name: 'Instagram Reels / TikTok', description: 'Vertical video, Stories' },
+  { ratio: '1:1', name: 'Instagram Feed / Square', description: 'Square format, LinkedIn' },
+  { ratio: '4:5', name: 'Instagram Portrait', description: 'Portrait post' },
+];
 
 export const FONT_FAMILIES = [
   { name: 'Arial', value: 'Arial, sans-serif' },

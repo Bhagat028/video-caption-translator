@@ -28,7 +28,7 @@ function App() {
   // --- User Controls State ---
   const [selectedLanguage, setSelectedLanguage] = useState<string>(LANGUAGES[1].name); // Default to Spanish
   const [maxWords, setMaxWords] = useState(10);
-  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0]); // Default to 16:9
+  const [aspectRatio, setAspectRatio] = useState(ASPECT_RATIOS[0].ratio); // Default to 16:9
   const [captionStyle, setCaptionStyle] = useState<CaptionStyle>(DEFAULT_STYLE);
   const [activePreset, setActivePreset] = useState<string>('Classic');
 
