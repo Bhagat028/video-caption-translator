@@ -11,6 +11,7 @@ import { Loader } from './components/Loader';
 import { LanguageToggle } from './components/LanguageToggle';
 import { DownloadButton } from './components/DownloadButton';
 import { CaptionEditor } from './components/CaptionEditor';
+import { CaptionDebugPanel } from './components/CaptionDebugPanel';
 import { generateAndTranslateCaptions } from './services/geminiService';
 import { Caption, CaptionStyle, CaptionPreset, TranslationResponse } from './types';
 import { DEFAULT_STYLE, LANGUAGES, ASPECT_RATIOS } from './constants';
@@ -21,6 +22,11 @@ function App() {
   const [translationResponse, setTranslationResponse] = useState<TranslationResponse | null>(null);
   const [activeCaptions, setActiveCaptions] = useState<Caption[]>([]);
   const [activeLang, setActiveLang] = useState<string>('');
+
+  // Debug state
+  const [debugCurrentTime, setDebugCurrentTime] = useState<number>(0);
+  const [debugActiveCaption, setDebugActiveCaption] = useState<Caption | undefined>(undefined);
+  const [showDebugPanel, setShowDebugPanel] = useState<boolean>(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -181,6 +187,10 @@ function App() {
                     captionStyle={captionStyle}
                     aspectRatio={aspectRatio}
                     onCaptionStyleChange={setCaptionStyle}
+                    onTimeUpdate={(time, caption) => {
+                      setDebugCurrentTime(time);
+                      setDebugActiveCaption(caption);
+                    }}
                   />
                 </div>
               ) : (
@@ -194,6 +204,26 @@ function App() {
                   </div>
                 )}
             </div>
+
+            {/* Debug Panel - Toggle for debugging caption timing issues */}
+            {translationResponse && activeCaptions.length > 0 && (
+              <div className="space-y-4">
+                <button
+                  onClick={() => setShowDebugPanel(!showDebugPanel)}
+                  className="w-full px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 transition-colors text-sm"
+                >
+                  {showDebugPanel ? '🔍 Hide' : '🔍 Show'} Caption Debug Info
+                </button>
+
+                {showDebugPanel && (
+                  <CaptionDebugPanel
+                    captions={activeCaptions}
+                    currentTime={debugCurrentTime}
+                    activeCaption={debugActiveCaption}
+                  />
+                )}
+              </div>
+            )}
 
             {/* Caption Editor - Show when captions are available */}
             {translationResponse && activeCaptions.length > 0 && (

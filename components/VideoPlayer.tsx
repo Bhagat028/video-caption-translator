@@ -7,6 +7,7 @@ interface VideoPlayerProps {
   captionStyle: CaptionStyle;
   aspectRatio: string;
   onCaptionStyleChange: (style: CaptionStyle) => void;
+  onTimeUpdate?: (currentTime: number, activeCaption: Caption | undefined) => void;
 }
 
 const getAspectRatioPadding = (ratio: string) => {
@@ -19,7 +20,7 @@ const getAspectRatioPadding = (ratio: string) => {
   }
 };
 
-export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, captions, captionStyle, aspectRatio, onCaptionStyleChange }) => {
+export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, captions, captionStyle, aspectRatio, onCaptionStyleChange, onTimeUpdate }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const captionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,12 +41,19 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({ videoUrl, captions, ca
     const video = videoRef.current;
     if (!video) return;
 
-    const timeUpdateHandler = () => setCurrentTime(video.currentTime);
+    const timeUpdateHandler = () => {
+      const time = video.currentTime;
+      setCurrentTime(time);
+      const active = captions.find(c => time >= c.start && time <= c.end);
+      if (onTimeUpdate) {
+        onTimeUpdate(time, active);
+      }
+    };
     video.addEventListener('timeupdate', timeUpdateHandler);
 
     return () => video.removeEventListener('timeupdate', timeUpdateHandler);
-  }, [videoUrl]);
-  
+  }, [videoUrl, captions, onTimeUpdate]);
+
   const activeCaption = captions.find(c => currentTime >= c.start && currentTime <= c.end);
   
   const textShadow = `${captionStyle.outlineWidth}px ${captionStyle.outlineWidth}px 0 ${captionStyle.outlineColor}, -${captionStyle.outlineWidth}px -${captionStyle.outlineWidth}px 0 ${captionStyle.outlineColor}, ${captionStyle.outlineWidth}px -${captionStyle.outlineWidth}px 0 ${captionStyle.outlineColor}, -${captionStyle.outlineWidth}px ${captionStyle.outlineWidth}px 0 ${captionStyle.outlineColor}`;
