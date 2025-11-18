@@ -21,12 +21,18 @@ export async function generateAndTranslateCaptions(
 
   const prompt = `You are an expert in audio transcription and translation.
 Your task is to:
-1. Transcribe the provided audio accurately.
+1. Transcribe the ENTIRE provided audio from start to finish accurately.
 2. Segment the transcription into captions. Each caption should not exceed ${maxWordsPerCaption} words.
 3. For each caption, provide accurate timestamps (start and end time in seconds).
 4. Identify the source language of the audio.
 5. Translate each caption into ${targetLanguage}, maintaining the same timing.
 6. Provide the output in a single JSON object.
+
+IMPORTANT:
+- Process the COMPLETE audio file, regardless of duration (may be several minutes long)
+- Generate captions for ALL spoken content from beginning to end
+- Do NOT stop processing after 1 minute - continue through the entire audio
+- Timestamps should span the full duration of the audio
 
 The JSON object must have the following structure:
 {
@@ -38,6 +44,7 @@ The JSON object must have the following structure:
 - 'start' and 'end' times must be in seconds and accurately reflect when the speech occurs.
 - The 'originalCaptions' and 'translatedCaptions' arrays must have the same length and corresponding timing.
 - Each caption's text should be the complete phrase/sentence, not individual words.
+- Ensure timestamps cover the entire audio duration.
 `;
 
   const captionSchema = {
@@ -231,6 +238,26 @@ The JSON object must have the following structure:
     console.log('[geminiService] Source language:', parsedResponse.sourceLanguage);
     console.log('[geminiService] Original captions count:', parsedResponse.originalCaptions.length);
     console.log('[geminiService] Translated captions count:', parsedResponse.translatedCaptions.length);
+
+    // Log caption timing range for debugging
+    if (parsedResponse.originalCaptions.length > 0) {
+      const firstCaption = parsedResponse.originalCaptions[0];
+      const lastCaption = parsedResponse.originalCaptions[parsedResponse.originalCaptions.length - 1];
+      console.log('[geminiService] Caption timing range:', {
+        firstStart: firstCaption.start.toFixed(2) + 's',
+        lastEnd: lastCaption.end.toFixed(2) + 's',
+        totalDuration: (lastCaption.end - firstCaption.start).toFixed(2) + 's'
+      });
+
+      // Check if there are captions beyond 60 seconds
+      const captionsBeyond60s = parsedResponse.originalCaptions.filter(c => c.start >= 60);
+      console.log('[geminiService] Captions beyond 60 seconds:', captionsBeyond60s.length);
+
+      if (captionsBeyond60s.length === 0 && lastCaption.end < 60) {
+        console.warn('[geminiService] ⚠️ WARNING: No captions generated beyond 60 seconds!');
+        console.warn('[geminiService] This may indicate the API stopped processing early.');
+      }
+    }
 
     return parsedResponse;
   } catch (error) {
