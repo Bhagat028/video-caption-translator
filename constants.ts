@@ -26,6 +26,13 @@ export const FONT_FAMILIES = [
   { name: 'Courier New', value: '"Courier New", monospace' },
   { name: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
   { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+  // Instagram Reels & Social Media Fonts
+  { name: 'Montserrat', value: 'Montserrat, sans-serif' },
+  { name: 'Poppins', value: 'Poppins, sans-serif' },
+  { name: 'Bebas Neue', value: '"Bebas Neue", sans-serif' },
+  { name: 'Anton', value: 'Anton, sans-serif' },
+  { name: 'Oswald', value: 'Oswald, sans-serif' },
+  { name: 'Raleway', value: 'Raleway, sans-serif' },
 ];
 
 export const DEFAULT_STYLE: CaptionStyle = {
@@ -127,5 +134,20 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     letterSpacing: 0.5,
     lineHeight: 1.1,
     borderRadius: 16,
+  },
+  {
+    name: 'Instagram Reels',
+    fontSize: 40,
+    primaryColor: '#FFFFFF',
+    activeColor: '#FF0080', // Instagram pink
+    outlineColor: '#000000',
+    outlineWidth: 2.5,
+    fontWeight: 900,
+    backgroundColor: '#000000',
+    backgroundOpacity: 0.15,
+    fontFamily: 'Montserrat, sans-serif',
+    letterSpacing: 0.8,
+    lineHeight: 1.15,
+    borderRadius: 10,
   },
 ];
