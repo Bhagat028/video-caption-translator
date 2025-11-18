@@ -9,6 +9,9 @@ interface CaptionEditorProps {
 export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptionsChange }) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showFindReplace, setShowFindReplace] = useState(false);
+  const [findText, setFindText] = useState('');
+  const [replaceText, setReplaceText] = useState('');
 
   const handleTextChange = (index: number, newText: string) => {
     const updatedCaptions = [...captions];
@@ -143,11 +146,28 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptio
     return captions;
   };
 
+  const handleFindReplace = () => {
+    if (!findText) return;
+
+    const updatedCaptions = captions.map(caption => ({
+      ...caption,
+      text: caption.text.replace(new RegExp(findText, 'gi'), replaceText)
+    }));
+
+    onCaptionsChange(updatedCaptions);
+    setFindText('');
+    setReplaceText('');
+    setShowFindReplace(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header with Actions */}
       <div className="flex justify-between items-center sticky top-0 bg-slate-900 pb-2 z-10 border-b border-slate-700">
-        <h3 className="text-lg font-semibold text-slate-300">Caption Manager</h3>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-300">Caption Manager</h3>
+          <p className="text-xs text-slate-500 mt-1">✏️ Click any caption to edit text and fix spelling errors</p>
+        </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-slate-400">{captions.length} captions</span>
         </div>
@@ -163,6 +183,16 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptio
             <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
           </svg>
           Add Caption
+        </button>
+
+        <button
+          onClick={() => setShowFindReplace(!showFindReplace)}
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+          </svg>
+          Find & Replace
         </button>
 
         <button
@@ -185,7 +215,7 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptio
           Export SRT
         </button>
 
-        <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer flex items-center justify-center gap-2">
+        <label className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer flex items-center justify-center gap-2 col-span-2">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
           </svg>
@@ -199,6 +229,45 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptio
           />
         </label>
       </div>
+
+      {/* Find & Replace Panel */}
+      {showFindReplace && (
+        <div className="bg-slate-800 p-4 rounded-lg border border-purple-500/50">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-sm font-semibold text-purple-300">Find & Replace - Fix Spelling Errors</h4>
+            <button
+              onClick={() => setShowFindReplace(false)}
+              className="text-slate-400 hover:text-slate-300"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={findText}
+              onChange={(e) => setFindText(e.target.value)}
+              placeholder="Find text (e.g., 'teh')"
+              className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            />
+            <input
+              type="text"
+              value={replaceText}
+              onChange={(e) => setReplaceText(e.target.value)}
+              placeholder="Replace with (e.g., 'the')"
+              className="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500"
+            />
+          </div>
+          <button
+            onClick={handleFindReplace}
+            disabled={!findText}
+            className="mt-3 w-full px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-700 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
+          >
+            Replace All Occurrences
+          </button>
+          <p className="text-xs text-slate-500 mt-2">Case-insensitive search across all captions</p>
+        </div>
+      )}
 
       {captions.length === 0 ? (
         <div className="text-center text-slate-400 py-8 bg-slate-800 rounded-lg border border-slate-700">
