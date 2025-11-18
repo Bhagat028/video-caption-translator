@@ -10,6 +10,7 @@ import { VideoPlayer } from './components/VideoPlayer';
 import { Loader } from './components/Loader';
 import { LanguageToggle } from './components/LanguageToggle';
 import { DownloadButton } from './components/DownloadButton';
+import { CaptionEditor } from './components/CaptionEditor';
 import { generateAndTranslateCaptions } from './services/geminiService';
 import { Caption, CaptionStyle, CaptionPreset, TranslationResponse } from './types';
 import { DEFAULT_STYLE, LANGUAGES, ASPECT_RATIOS } from './constants';
@@ -159,14 +160,14 @@ function App() {
             </div>
           </div>
 
-          {/* Right Column: Video Player */}
-          <div className="lg:col-span-2">
+          {/* Right Column: Video Player & Caption Editor */}
+          <div className="lg:col-span-2 space-y-6">
             <div className="sticky top-24">
               {videoUrl ? (
                 <div className="space-y-4">
                   {translationResponse && (
                     <div className="flex justify-center">
-                        <LanguageToggle 
+                        <LanguageToggle
                             sourceLang={translationResponse.sourceLanguage}
                             targetLang={selectedLanguage}
                             activeLang={activeLang}
@@ -174,7 +175,7 @@ function App() {
                         />
                     </div>
                   )}
-                  <VideoPlayer 
+                  <VideoPlayer
                     videoUrl={videoUrl}
                     captions={activeCaptions}
                     captionStyle={captionStyle}
@@ -193,6 +194,16 @@ function App() {
                   </div>
                 )}
             </div>
+
+            {/* Caption Editor - Show when captions are available */}
+            {translationResponse && activeCaptions.length > 0 && (
+              <div className="bg-slate-900 p-6 rounded-lg shadow-lg">
+                <CaptionEditor
+                  captions={activeCaptions}
+                  onCaptionsChange={setActiveCaptions}
+                />
+              </div>
+            )}
           </div>
         </div>
       </main>
