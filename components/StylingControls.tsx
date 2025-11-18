@@ -1,5 +1,6 @@
 import React from 'react';
 import { CaptionStyle } from '../types';
+import { FONT_FAMILIES } from '../constants';
 
 interface StylingControlsProps {
   captionStyle: CaptionStyle;
@@ -65,6 +66,55 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{captionStyle.fontWeight}</div>
         </ControlWrapper>
+        <ControlWrapper label="Font Family" htmlFor="font-family" isPresetActive={isPresetActive}>
+          <select
+            id="font-family"
+            value={captionStyle.fontFamily}
+            onChange={(e) => handleStyleChange('fontFamily', e.target.value)}
+            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg cursor-pointer text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            {FONT_FAMILIES.map((font) => (
+              <option key={font.value} value={font.value} style={{ fontFamily: font.value }}>
+                {font.name}
+              </option>
+            ))}
+          </select>
+        </ControlWrapper>
+        <ControlWrapper label="Text Alignment" htmlFor="text-align" isPresetActive={isPresetActive}>
+          <div className="flex gap-2">
+            {(['left', 'center', 'right'] as const).map((align) => (
+              <button
+                key={align}
+                onClick={() => handleStyleChange('textAlign', align)}
+                className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  captionStyle.textAlign === align
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                }`}
+              >
+                {align.charAt(0).toUpperCase() + align.slice(1)}
+              </button>
+            ))}
+          </div>
+        </ControlWrapper>
+        <ControlWrapper label="Letter Spacing" htmlFor="letter-spacing" isPresetActive={isPresetActive}>
+          <input
+            id="letter-spacing" type="range" min="-2" max="5" step="0.5"
+            value={captionStyle.letterSpacing}
+            onChange={(e) => handleStyleChange('letterSpacing', parseFloat(e.target.value))}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          />
+          <div className="text-right text-xs text-slate-400">{captionStyle.letterSpacing}px</div>
+        </ControlWrapper>
+        <ControlWrapper label="Line Height" htmlFor="line-height" isPresetActive={isPresetActive}>
+          <input
+            id="line-height" type="range" min="0.8" max="2" step="0.1"
+            value={captionStyle.lineHeight}
+            onChange={(e) => handleStyleChange('lineHeight', parseFloat(e.target.value))}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          />
+          <div className="text-right text-xs text-slate-400">{captionStyle.lineHeight}</div>
+        </ControlWrapper>
         <ControlWrapper label="Primary Color" htmlFor="primary-color" isPresetActive={isPresetActive}>
           <input
             id="primary-color" type="color"
@@ -125,6 +175,15 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
             className="w-full h-10 p-1 bg-slate-900 border border-slate-700 rounded-lg cursor-pointer"
             style={{backgroundColor: toRgba(captionStyle.backgroundColor, captionStyle.backgroundOpacity)}}
           />
+        </ControlWrapper>
+        <ControlWrapper label="Border Radius" htmlFor="border-radius" isPresetActive={isPresetActive}>
+          <input
+            id="border-radius" type="range" min="0" max="30" step="2"
+            value={captionStyle.borderRadius}
+            onChange={(e) => handleStyleChange('borderRadius', parseFloat(e.target.value))}
+            className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+          />
+          <div className="text-right text-xs text-slate-400">{captionStyle.borderRadius}px</div>
         </ControlWrapper>
       </div>
     </div>

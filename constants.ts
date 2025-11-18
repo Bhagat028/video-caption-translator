@@ -15,6 +15,19 @@ export const LANGUAGES = [
 
 export const ASPECT_RATIOS = ['16:9', '9:16', '1:1', '4:5'];
 
+export const FONT_FAMILIES = [
+  { name: 'Arial', value: 'Arial, sans-serif' },
+  { name: 'Arial Black', value: '"Arial Black", sans-serif' },
+  { name: 'Impact', value: 'Impact, sans-serif' },
+  { name: 'Verdana', value: 'Verdana, sans-serif' },
+  { name: 'Tahoma', value: 'Tahoma, sans-serif' },
+  { name: 'Times New Roman', value: '"Times New Roman", serif' },
+  { name: 'Georgia', value: 'Georgia, serif' },
+  { name: 'Courier New', value: '"Courier New", monospace' },
+  { name: 'Comic Sans MS', value: '"Comic Sans MS", cursive' },
+  { name: 'Trebuchet MS', value: '"Trebuchet MS", sans-serif' },
+];
+
 export const DEFAULT_STYLE: CaptionStyle = {
   fontSize: 32,
   primaryColor: '#FFFFFF',
@@ -25,6 +38,11 @@ export const DEFAULT_STYLE: CaptionStyle = {
   backgroundColor: '#000000',
   backgroundOpacity: 0.5,
   position: { x: 50, y: 80 },
+  fontFamily: 'Arial, sans-serif',
+  textAlign: 'center',
+  letterSpacing: 0,
+  lineHeight: 1.2,
+  borderRadius: 8,
 };
 
 export const CAPTION_PRESETS: CaptionPreset[] = [
@@ -36,6 +54,10 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     outlineWidth: 0,
     fontWeight: 500,
     backgroundOpacity: 0,
+    fontFamily: 'Arial, sans-serif',
+    letterSpacing: 0.5,
+    lineHeight: 1.3,
+    borderRadius: 0,
   },
   {
     name: 'Classic',
@@ -46,6 +68,10 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     outlineWidth: 2,
     fontWeight: 700,
     backgroundOpacity: 0.5,
+    fontFamily: 'Arial, sans-serif',
+    letterSpacing: 0,
+    lineHeight: 1.2,
+    borderRadius: 8,
   },
   {
     name: 'Impact',
@@ -56,6 +82,10 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     outlineWidth: 3,
     fontWeight: 900,
     backgroundOpacity: 0,
+    fontFamily: 'Impact, sans-serif',
+    letterSpacing: 1,
+    lineHeight: 1.1,
+    borderRadius: 0,
   },
   {
     name: 'Clean',
@@ -66,6 +96,10 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     fontWeight: 600,
     backgroundColor: '#FFFFFF',
     backgroundOpacity: 0.8,
+    fontFamily: 'Verdana, sans-serif',
+    letterSpacing: 0,
+    lineHeight: 1.4,
+    borderRadius: 12,
   },
   {
     name: 'Neon',
@@ -75,6 +109,10 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     outlineWidth: 1,
     fontWeight: 700,
     backgroundOpacity: 0,
+    fontFamily: '"Arial Black", sans-serif',
+    letterSpacing: 1.5,
+    lineHeight: 1.2,
+    borderRadius: 0,
   },
   {
     name: 'Karaoke',
@@ -85,5 +123,9 @@ export const CAPTION_PRESETS: CaptionPreset[] = [
     outlineWidth: 3,
     fontWeight: 900,
     backgroundOpacity: 0.2,
+    fontFamily: '"Arial Black", sans-serif',
+    letterSpacing: 0.5,
+    lineHeight: 1.1,
+    borderRadius: 16,
   },
 ];

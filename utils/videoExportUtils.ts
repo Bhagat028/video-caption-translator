@@ -265,11 +265,13 @@ function drawCaption(
   const scaleFactor = canvasHeight / 1080;
   const scaledFontSize = Math.round(style.fontSize * scaleFactor);
   const scaledOutlineWidth = style.outlineWidth * scaleFactor;
-  
-  // Set font with scaled size
-  ctx.font = `${style.fontWeight} ${scaledFontSize}px Arial, sans-serif`;
-  ctx.textAlign = 'center';
+  const scaledLetterSpacing = style.letterSpacing * scaleFactor;
+
+  // Set font with scaled size and family
+  ctx.font = `${style.fontWeight} ${scaledFontSize}px ${style.fontFamily}`;
+  ctx.textAlign = style.textAlign as CanvasTextAlign;
   ctx.textBaseline = 'middle';
+  ctx.letterSpacing = `${scaledLetterSpacing}px`;
 
   // Calculate position (convert from percentage to pixels)
   const x = (style.position.x / 100) * canvasWidth;
@@ -278,11 +280,18 @@ function drawCaption(
   // Measure text
   const metrics = ctx.measureText(text);
   const textWidth = metrics.width;
-  const textHeight = scaledFontSize;
+  const textHeight = scaledFontSize * style.lineHeight;
 
-  // Draw background
+  // Draw background - adjust position based on alignment
   const padding = 10 * scaleFactor;
-  const bgX = x - textWidth / 2 - padding;
+  let bgX: number;
+  if (style.textAlign === 'left') {
+    bgX = x - padding;
+  } else if (style.textAlign === 'right') {
+    bgX = x - textWidth - padding;
+  } else {
+    bgX = x - textWidth / 2 - padding;
+  }
   const bgY = y - textHeight / 2 - padding;
   const bgWidth = textWidth + padding * 2;
   const bgHeight = textHeight + padding * 2;
@@ -292,9 +301,9 @@ function drawCaption(
   const r = parseInt(bgColor.slice(1, 3), 16);
   const g = parseInt(bgColor.slice(3, 5), 16);
   const b = parseInt(bgColor.slice(5, 7), 16);
-  
+
   ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${style.backgroundOpacity})`;
-  ctx.roundRect(bgX, bgY, bgWidth, bgHeight, 8 * scaleFactor);
+  ctx.roundRect(bgX, bgY, bgWidth, bgHeight, style.borderRadius * scaleFactor);
   ctx.fill();
 
   // Draw text outline

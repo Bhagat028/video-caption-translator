@@ -23,6 +23,11 @@ export interface CaptionStyle {
     x: number; // percentage
     y: number; // percentage
   };
+  fontFamily: string;
+  textAlign: 'left' | 'center' | 'right';
+  letterSpacing: number;
+  lineHeight: number;
+  borderRadius: number;
 }
 
 export interface CaptionPreset extends Partial<CaptionStyle> {
