@@ -162,7 +162,12 @@ function App() {
 
             <div className="bg-slate-900 p-6 rounded-lg shadow-lg space-y-6">
               <PresetSelector activePreset={activePreset} onPresetSelect={handlePresetSelect} />
-              <StylingControls captionStyle={captionStyle} onStyleChange={setCaptionStyle} isPresetActive={isPresetActive} />
+              <StylingControls
+                captionStyle={captionStyle}
+                onStyleChange={setCaptionStyle}
+                isPresetActive={isPresetActive}
+                onRequestCustomMode={() => setActivePreset('Custom')}
+              />
             </div>
           </div>
 

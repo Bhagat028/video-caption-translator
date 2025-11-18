@@ -163,13 +163,25 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptio
   return (
     <div className="space-y-4">
       {/* Header with Actions */}
-      <div className="flex justify-between items-center sticky top-0 bg-slate-900 pb-2 z-10 border-b border-slate-700">
-        <div>
-          <h3 className="text-lg font-semibold text-slate-300">Caption Manager</h3>
-          <p className="text-xs text-slate-500 mt-1">✏️ Click any caption to edit text and fix spelling errors</p>
+      <div className="sticky top-0 bg-slate-900 pb-3 z-10 border-b-2 border-indigo-500/30">
+        <div className="flex justify-between items-center mb-2">
+          <div>
+            <h3 className="text-xl font-bold text-indigo-400">📝 Edit Captions</h3>
+            <p className="text-sm text-slate-400 mt-1">Make changes to your transcript - all edits are saved automatically</p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-indigo-400">{captions.length}</div>
+            <div className="text-xs text-slate-500">Captions</div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-slate-400">{captions.length} captions</span>
+        <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-lg p-3 text-sm text-indigo-200">
+          <p className="font-semibold mb-1">💡 Quick Guide:</p>
+          <ul className="text-xs space-y-1 text-slate-300">
+            <li>• Click caption text to edit spelling/wording</li>
+            <li>• Use Find & Replace to fix recurring errors</li>
+            <li>• Expand "Adjust timing" to change when captions appear</li>
+            <li>• All changes update live in the video above</li>
+          </ul>
         </div>
       </div>
 

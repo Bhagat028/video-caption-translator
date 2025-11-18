@@ -6,10 +6,24 @@ interface StylingControlsProps {
   captionStyle: CaptionStyle;
   onStyleChange: (style: CaptionStyle) => void;
   isPresetActive: boolean;
+  onRequestCustomMode?: () => void;
 }
 
-const ControlWrapper: React.FC<{ label: string; htmlFor: string; children: React.ReactNode; isPresetActive: boolean }> = ({ label, htmlFor, children, isPresetActive }) => (
-  <div className={`space-y-2 transition-opacity duration-300 ${isPresetActive ? 'opacity-50 cursor-not-allowed' : ''}`}>
+const ControlWrapper: React.FC<{
+  label: string;
+  htmlFor: string;
+  children: React.ReactNode;
+  isPresetActive: boolean;
+  onRequestCustomMode?: () => void;
+}> = ({ label, htmlFor, children, isPresetActive, onRequestCustomMode }) => (
+  <div
+    className={`space-y-2 transition-opacity duration-300 ${isPresetActive ? 'opacity-50' : ''}`}
+    onClick={() => {
+      if (isPresetActive && onRequestCustomMode) {
+        onRequestCustomMode();
+      }
+    }}
+  >
     <label htmlFor={htmlFor} className="text-sm font-medium text-slate-400">{label}</label>
     <div className={isPresetActive ? 'pointer-events-none' : ''}>
       {children}
@@ -17,7 +31,7 @@ const ControlWrapper: React.FC<{ label: string; htmlFor: string; children: React
   </div>
 );
 
-export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, onStyleChange, isPresetActive }) => {
+export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, onStyleChange, isPresetActive, onRequestCustomMode }) => {
   const handleStyleChange = (key: keyof CaptionStyle, value: string | number) => {
     onStyleChange({ ...captionStyle, [key]: value });
   };
@@ -40,15 +54,16 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
       <h3 className="text-lg font-semibold text-slate-300 border-b border-slate-700 pb-2">Custom Styles</h3>
       
       {isPresetActive && (
-          <div className="text-center text-xs text-slate-400 bg-slate-800/50 p-2 rounded-lg">
-              Select the "Custom" preset to enable manual editing.
+          <div className="text-center text-xs text-slate-400 bg-slate-800/50 p-3 rounded-lg border border-indigo-500/30">
+              <p className="font-semibold text-indigo-300 mb-1">🔒 Preset Active</p>
+              <p>Click any control below to automatically switch to Custom mode and enable editing.</p>
           </div>
       )}
 
       {/* Text Styling */}
       <div className="space-y-4">
         <h4 className="font-semibold text-slate-300 text-sm">Text</h4>
-        <ControlWrapper label="Font Size" htmlFor="font-size" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Font Size" htmlFor="font-size" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="font-size" type="range" min="16" max="64"
             value={captionStyle.fontSize}
@@ -57,7 +72,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{captionStyle.fontSize}px</div>
         </ControlWrapper>
-        <ControlWrapper label="Font Weight" htmlFor="font-weight" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Font Weight" htmlFor="font-weight" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="font-weight" type="range" min="100" max="900" step="100"
             value={captionStyle.fontWeight}
@@ -66,7 +81,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{captionStyle.fontWeight}</div>
         </ControlWrapper>
-        <ControlWrapper label="Font Family" htmlFor="font-family" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Font Family" htmlFor="font-family" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <select
             id="font-family"
             value={captionStyle.fontFamily}
@@ -80,7 +95,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
             ))}
           </select>
         </ControlWrapper>
-        <ControlWrapper label="Text Alignment" htmlFor="text-align" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Text Alignment" htmlFor="text-align" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <div className="flex gap-2">
             {(['left', 'center', 'right'] as const).map((align) => (
               <button
@@ -97,7 +112,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
             ))}
           </div>
         </ControlWrapper>
-        <ControlWrapper label="Letter Spacing" htmlFor="letter-spacing" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Letter Spacing" htmlFor="letter-spacing" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="letter-spacing" type="range" min="-2" max="5" step="0.5"
             value={captionStyle.letterSpacing}
@@ -106,7 +121,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{captionStyle.letterSpacing}px</div>
         </ControlWrapper>
-        <ControlWrapper label="Line Height" htmlFor="line-height" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Line Height" htmlFor="line-height" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="line-height" type="range" min="0.8" max="2" step="0.1"
             value={captionStyle.lineHeight}
@@ -115,7 +130,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{captionStyle.lineHeight}</div>
         </ControlWrapper>
-        <ControlWrapper label="Primary Color" htmlFor="primary-color" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Primary Color" htmlFor="primary-color" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="primary-color" type="color"
             value={captionStyle.primaryColor}
@@ -123,7 +138,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
             className="w-full h-10 p-1 bg-slate-900 border border-slate-700 rounded-lg cursor-pointer"
           />
         </ControlWrapper>
-        <ControlWrapper label="Highlight Color" htmlFor="active-color" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Highlight Color" htmlFor="active-color" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="active-color" type="color"
             value={captionStyle.activeColor}
@@ -136,7 +151,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
       {/* Outline Styling */}
       <div className="space-y-4">
         <h4 className="font-semibold text-slate-300 text-sm">Outline</h4>
-        <ControlWrapper label="Outline Width" htmlFor="outline-width" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Outline Width" htmlFor="outline-width" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="outline-width" type="range" min="0" max="8" step="0.5"
             value={captionStyle.outlineWidth}
@@ -145,7 +160,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{captionStyle.outlineWidth}px</div>
         </ControlWrapper>
-        <ControlWrapper label="Outline Color" htmlFor="outline-color" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Outline Color" htmlFor="outline-color" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="outline-color" type="color"
             value={captionStyle.outlineColor}
@@ -158,7 +173,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
       {/* Background Styling */}
       <div className="space-y-4">
         <h4 className="font-semibold text-slate-300 text-sm">Background</h4>
-         <ControlWrapper label="Background Opacity" htmlFor="bg-opacity" isPresetActive={isPresetActive}>
+         <ControlWrapper label="Background Opacity" htmlFor="bg-opacity" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="bg-opacity" type="range" min="0" max="1" step="0.05"
             value={captionStyle.backgroundOpacity}
@@ -167,7 +182,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
           />
           <div className="text-right text-xs text-slate-400">{Math.round(captionStyle.backgroundOpacity * 100)}%</div>
         </ControlWrapper>
-        <ControlWrapper label="Background Color" htmlFor="bg-color" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Background Color" htmlFor="bg-color" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="bg-color" type="color"
             value={captionStyle.backgroundColor}
@@ -176,7 +191,7 @@ export const StylingControls: React.FC<StylingControlsProps> = ({ captionStyle, 
             style={{backgroundColor: toRgba(captionStyle.backgroundColor, captionStyle.backgroundOpacity)}}
           />
         </ControlWrapper>
-        <ControlWrapper label="Border Radius" htmlFor="border-radius" isPresetActive={isPresetActive}>
+        <ControlWrapper label="Border Radius" htmlFor="border-radius" isPresetActive={isPresetActive} onRequestCustomMode={onRequestCustomMode}>
           <input
             id="border-radius" type="range" min="0" max="30" step="2"
             value={captionStyle.borderRadius}
