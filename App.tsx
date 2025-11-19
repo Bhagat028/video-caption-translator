@@ -173,7 +173,7 @@ function App() {
 
           {/* Right Column: Video Player & Caption Editor */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="sticky top-24">
+            <div>
               {videoUrl ? (
                 <div className="space-y-4">
                   {translationResponse && (
