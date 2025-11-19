@@ -163,7 +163,7 @@ export const CaptionEditor: React.FC<CaptionEditorProps> = ({ captions, onCaptio
   return (
     <div className="space-y-4">
       {/* Header with Actions */}
-      <div className="sticky top-0 bg-slate-900 pb-3 z-10 border-b-2 border-indigo-500/30">
+      <div className="bg-slate-900 pb-3 mb-4 border-b-2 border-indigo-500/30">
         <div className="flex justify-between items-center mb-2">
           <div>
             <h3 className="text-xl font-bold text-indigo-400">📝 Edit Captions</h3>
